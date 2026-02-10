@@ -94,6 +94,38 @@ func createPost(c *gin.Context) {
 	c.JSON(http.StatusCreated, newPost)
 }
 
+func getAllPosts(c *gin.Context) {
+
+	posts, err := loadPosts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "File read error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, posts)
+}
+
+func getPost(c *gin.Context) {
+
+	id := c.Param("id")
+
+	posts, err := loadPosts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "File read error"})
+		return
+	}
+
+	for _, post := range posts {
+
+		if post.ID == id {
+			c.JSON(http.StatusOK, post)
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+}
+
 func main() {
 
 	gin.SetMode(gin.ReleaseMode)
@@ -102,13 +134,13 @@ func main() {
 
 	router.SetTrustedProxies(nil)
 
-	// Health check
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Server is running"})
 	})
 
-	// POST route only
 	router.POST("/posts", createPost)
+	router.GET("/posts", getAllPosts)
+	router.GET("/posts/:id", getPost)
 
 	fmt.Println("Server running at http://localhost:8080")
 
