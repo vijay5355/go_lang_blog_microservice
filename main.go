@@ -126,6 +126,70 @@ func getPost(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 }
 
+func updatePost(c *gin.Context) {
+
+	id := c.Param("id")
+
+	var updatedPost Post
+	if err := c.ShouldBindJSON(&updatedPost); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+	posts, err := loadPosts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "File read error"})
+		return
+	}
+
+	// Find and update
+	for i, post := range posts {
+
+		if post.ID == id {
+
+			// Update fields
+			post.Title = updatedPost.Title
+			post.Content = updatedPost.Content
+			post.Author = updatedPost.Author
+			post.UpdatedAt = getTime()
+
+			posts[i] = post
+			if err := savePosts(posts); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "File write error"})
+				return
+			}
+
+			c.JSON(http.StatusOK, post)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+}
+
+func deletePost(c *gin.Context) {
+
+	id := c.Param("id")
+	posts, err := loadPosts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "File read error"})
+		return
+	}
+
+	for i, post := range posts {
+
+		if post.ID == id {
+			posts = append(posts[:i], posts[i+1:]...)
+			if err := savePosts(posts); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "File write error"})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"message": "Post deleted"})
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+}
+
 func main() {
 
 	gin.SetMode(gin.ReleaseMode)
@@ -141,6 +205,8 @@ func main() {
 	router.POST("/posts", createPost)
 	router.GET("/posts", getAllPosts)
 	router.GET("/posts/:id", getPost)
+	router.PUT("/posts/:id", updatePost)
+	router.DELETE("/posts/:id", deletePost)
 
 	fmt.Println("Server running at http://localhost:8080")
 
