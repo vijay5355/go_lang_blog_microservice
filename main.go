@@ -20,7 +20,7 @@ func main() {
 	router.GET("/posts/:id", getPost)
 	router.PUT("/posts/:id", updatePost)
 	router.DELETE("/posts/:id", deletePost)
-
+	router.GET("/posts/count", getPostsCount)
 	fmt.Println("Server running at http://localhost:8080")
 
 	router.Run(":8080")

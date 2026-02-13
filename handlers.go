@@ -1,5 +1,7 @@
 package main
 
+// package handlers
+
 import (
 	"encoding/json"
 	"fmt"
@@ -103,6 +105,17 @@ func getAllPosts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, posts)
+}
+
+func getPostsCount(c *gin.Context) {
+	posts, err := loadPosts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "File read error"})
+	}
+	var count int = len(posts)
+	c.JSON(http.StatusOK, gin.H{
+		"The total no of posts is given by": count,
+	})
 }
 
 func getPost(c *gin.Context) {
