@@ -1,0 +1,12 @@
+-- CREATE TABLE posts (
+--     id SERIAL PRIMARY KEY,
+--     title TEXT NOT NULL,
+--     content TEXT NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- ALTER TABLE posts
+-- ADD COLUMN author TEXT,
+-- ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+-- SELECT * FROM posts;
